@@ -9,6 +9,10 @@ class UserProfile(models.Model):
     verification_code = models.IntegerField(null=True, blank=True)
     # permission = models.ManyToManyField(permission_models.Permission, blank=True)
     role = models.CharField(max_length=60, null=True, blank=True)
+    city= models.CharField(max_length=60, null=True, blank=True)
+    state= models.CharField(max_length=60, null=True, blank=True)
+    zip= models.CharField(max_length=60, null=True, blank=True)
+    birth_date= models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now=True, null=False)
 

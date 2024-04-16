@@ -1,13 +1,41 @@
 all_permissions = [
     {
-        "module_name": "Sounds Management",
+        "module_name": "Dashboard",
         "can_add": False,
         "can_edit": False,
         "can_delete": False,
         "can_view": False
     },
     {
-        "module_name": "Stories Management",
+        "module_name": "Category Management",
+        "can_add": False,
+        "can_edit": False,
+        "can_delete": False,
+        "can_view": False
+    },
+    {
+        "module_name": "User Management",
+        "can_add": False,
+        "can_edit": False,
+        "can_delete": False,
+        "can_view": False
+    },
+    {
+        "module_name": "Sound Management",
+        "can_add": False,
+        "can_edit": False,
+        "can_delete": False,
+        "can_view": False
+    },
+    {
+        "module_name": "Relaxation Management",
+        "can_add": False,
+        "can_edit": False,
+        "can_delete": False,
+        "can_view": False
+    },
+    {
+        "module_name": "Story Management",
         "can_add": False,
         "can_edit": False,
         "can_delete": False,
@@ -21,14 +49,21 @@ all_permissions = [
         "can_view": False
     },
     {
-        "module_name": "Dashboard",
+        "module_name": "Subscription Management",
         "can_add": False,
         "can_edit": False,
         "can_delete": False,
         "can_view": False
     },
     {
-        "module_name": "Subscription Management",
+        "module_name": "Special Management",
+        "can_add": False,
+        "can_edit": False,
+        "can_delete": False,
+        "can_view": False
+    },
+    {
+        "module_name": "Coupon Management",
         "can_add": False,
         "can_edit": False,
         "can_delete": False,
