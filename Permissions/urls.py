@@ -13,5 +13,7 @@ urlpatterns = [
     # path('roles/<int:pk>/add-permission/', permission_views.AddRolePermission.as_view()),
     # path('users/<int:pk>/add-permission/', permission_views.AddUserPermission.as_view()),
     path('add/user', permission_views.AddUser.as_view()),
+    path('edit/user', permission_views.EditUser.as_view()),
+    path('delete/user/<int:id>', permission_views.DeleteUser.as_view()),
     path('all/users', permission_views.AllUsers.as_view()),
 ]

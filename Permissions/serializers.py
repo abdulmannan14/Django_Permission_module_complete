@@ -6,7 +6,7 @@ from Account import models as account_models
 class GetUserRoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserRole
-        fields = ('id', 'name',)
+        fields = ('id', 'name', 'actual_roles')
 
 
 class UserRolePermissionSerializer(serializers.ModelSerializer):
@@ -36,11 +36,16 @@ class UserRoleSerializer(serializers.ModelSerializer):
 
 class AllUserSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField('get_user', read_only=True)
+    role_id = serializers.SerializerMethodField('get_role_id', read_only=True)
 
     def get_user(self, obj):
         user = obj.user
         return user.get_full_name()
 
+    def get_role_id(self, obj):
+        role_id = obj.role
+        return role_id.id
+
     class Meta:
         model = account_models.UserProfile
-        fields = ['user', 'role']
+        fields = ['id', 'user', 'role', 'role_id']

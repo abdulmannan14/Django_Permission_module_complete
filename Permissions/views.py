@@ -104,7 +104,7 @@ class UserRoleList(APIView):
     """
 
     def get(self, request, format=None):
-        user_roles = UserRole.objects.filter(actual_roles=True)
+        user_roles = UserRole.objects.all()
         serializer = GetUserRoleSerializer(user_roles, many=True)
         # return Response(serializer.data)
         return Response(
@@ -126,7 +126,8 @@ class UserRoleList(APIView):
                                                              can_add=permission_segment['can_add'],
                                                              can_edit=permission_segment['can_edit'],
                                                              can_delete=permission_segment['can_delete'],
-                                                             can_view=permission_segment['can_view'])
+                                                             can_view=permission_segment['can_view'],
+                                                             can_access=permission_segment['can_access'])
                 role_obj.permissions.add(module_obj)
             return Response(
                 backend_utils.success_response(status_code=status.HTTP_200_OK, data=[],
@@ -160,7 +161,8 @@ class UserRoleList(APIView):
                                                              can_add=permission_segment['can_add'],
                                                              can_edit=permission_segment['can_edit'],
                                                              can_delete=permission_segment['can_delete'],
-                                                             can_view=permission_segment['can_view'])
+                                                             can_view=permission_segment['can_view'],
+                                                             can_access=permission_segment['can_access'])
                 role.permissions.add(module_obj)
         return Response(
             backend_utils.success_response(status_code=status.HTTP_200_OK, data=[],
@@ -394,9 +396,10 @@ class AddUser(APIView):
                                                              can_add=permission_segment['can_add'],
                                                              can_edit=permission_segment['can_edit'],
                                                              can_delete=permission_segment['can_delete'],
-                                                             can_view=permission_segment['can_view'])
+                                                             can_view=permission_segment['can_view'],
+                                                             can_access=permission_segment['can_access'])
                 role_obj.permissions.add(module_obj)
-            user_profile.role = user_profile.user.get_full_name()
+            user_profile.role = role_name
             user_profile.save()
             UserRolePermission.objects.create(user=user_profile, user_role=role_obj,
                                               default_permission=False)
@@ -405,6 +408,88 @@ class AddUser(APIView):
         return Response(
             backend_utils.success_response(status_code=status.HTTP_200_OK, data=[],
                                            msg='User Added Successfully'))
+
+
+class EditUser(APIView):
+    """
+    API view to assign a specific permission to a user, overriding default role permissions.
+    """
+
+    def post(self, request, format=None):
+        first_name = request.data.get('first_name', None)
+        last_name = request.data.get('last_name', None)
+        email = request.data.get('email', None)
+        city = request.data.get('city', None)
+        state = request.data.get('state', None)
+        zip = request.data.get('zip', None)
+        birthdate = request.data.get('birthdate', None)
+        default_role = request.data.get('default_role', None)
+        password = request.data.get('password', None)
+        role_id = request.data.get('role_id', None)
+        role_name = request.data.get('role_name', None)
+        # check if email already exists
+        user = User.objects.filter(email=email).first()
+        if user:
+            return Response(
+                backend_utils.failure_response(status_code=status.HTTP_400_BAD_REQUEST,
+                                               msg="Email already exists"))
+        if default_role and not role_id:
+            return Response(
+                backend_utils.failure_response(status_code=status.HTTP_400_BAD_REQUEST,
+                                               msg="When Selecting Default Role then Role ID is required"))
+        if not default_role and role_name:
+            role_obj = UserRole.objects.filter(name=role_name, actual_roles=True).first()
+            if role_obj:
+                return Response(
+                    backend_utils.failure_response(status_code=status.HTTP_400_BAD_REQUEST,
+                                                   msg="Role Name Already Exist"))
+        user = User.objects.create_user(email=email, password=password, username=email, first_name=first_name,
+                                        last_name=last_name)
+        user_profile = account_models.UserProfile.objects.create(user=user, city=city, state=state, zip=zip,
+                                                                 birth_date=birthdate)
+        user.set_password(password)
+        user.save()
+        print("default===", default_role)
+        if default_role:
+            user_role_obj = UserRole.objects.get(pk=role_id)
+            user_profile.role = user_role_obj.name
+            user_profile.save()
+            UserRolePermission.objects.create(user=user_profile, user_role=user_role_obj,
+                                              default_permission=True)
+        elif role_name and not default_role:
+            alloted_permissions = request.data.get('permissions')
+            role_obj = UserRole.objects.create(name=role_name, actual_roles=False)
+            for permission_segment in alloted_permissions:
+                module_obj = ModulePermission.objects.create(module_name=permission_segment['module_name'],
+                                                             can_add=permission_segment['can_add'],
+                                                             can_edit=permission_segment['can_edit'],
+                                                             can_delete=permission_segment['can_delete'],
+                                                             can_view=permission_segment['can_view'],
+                                                             can_access=permission_segment['can_access'])
+                role_obj.permissions.add(module_obj)
+            user_profile.role = role_name
+            user_profile.save()
+            UserRolePermission.objects.create(user=user_profile, user_role=role_obj,
+                                              default_permission=False)
+        else:
+            print("rlse===========", role_name, default_role)
+        return Response(
+            backend_utils.success_response(status_code=status.HTTP_200_OK, data=[],
+                                           msg='User Added Successfully'))
+
+
+class DeleteUser(APIView):
+    """
+    API view to assign a specific permission to a user, overriding default role permissions.
+    """
+
+    def delete(self, request, id, format=None):
+        user = User.objects.get(pk=id)
+        UserRolePermission.objects.filter(user__user=user).delete()
+        user.delete()
+        return Response(
+            backend_utils.success_response(status_code=status.HTTP_200_OK, data=[],
+                                           msg='User Deleted Successfully'))
 
 
 class AllUsers(APIView):

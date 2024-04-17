@@ -16,6 +16,7 @@ class UserRole(models.Model):
 
 class ModulePermission(models.Model):
     module_name = models.CharField(max_length=50)
+    can_access = models.BooleanField(default=False)
     can_add = models.BooleanField(default=False)
     can_edit = models.BooleanField(default=False)
     can_delete = models.BooleanField(default=False)
